@@ -1,4 +1,4 @@
-use std::io::{stdin, BufRead, stdout, Write, BufWriter};
+use std::io::{stdin, BufRead, stdout, Write, BufWriter, ErrorKind};
 
 use pico_args::Arguments;
 use regex::Regex;
@@ -48,7 +48,16 @@ fn sort(mut extraction: impl FnMut(&str) -> Option<i64>, reverse: bool) {
 
     let mut output = BufWriter::new(stdout().lock());
     for i in lines {
-        writeln!(&mut output, "{}", i.value).unwrap();
+        match writeln!(&mut output, "{}", i.value) {
+            Ok(_) => (),
+            Err(e) => {
+                match e.kind() {
+                    // This happens when using `head` for example.
+                    ErrorKind::BrokenPipe => return,
+                    e => panic!("{}", e),
+                }
+            }
+        };
     }
     output.flush().unwrap();
 }
