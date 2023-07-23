@@ -11,9 +11,9 @@ struct Sortable {
 fn main() {
     let mut args = Arguments::from_env();
 
-    let sort_by_regex: String = args.free_from_str().unwrap();
-
     let reverse = args.contains("-r") || args.contains("--reverse");
+
+    let sort_by_regex: String = args.free_from_str().unwrap();
 
     sort(regex_extraction(&sort_by_regex), reverse);
 }
