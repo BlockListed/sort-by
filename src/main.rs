@@ -2,6 +2,11 @@ use std::{io::{stdin, BufRead, stdout, Write}, env::args};
 
 use regex::Regex;
 
+struct Sortable {
+    value: String,
+    key: i64,
+}
+
 fn main() {
     let input = stdin().lock();
 
@@ -9,28 +14,37 @@ fn main() {
 
     let sort_by = Regex::new(&sort_by_regex).unwrap();
 
-    let mut lines: Vec<_> = input.lines().map(|l| l.unwrap()).filter(|v| !v.is_empty()).collect();
+    let mut lines: Vec<_> = input
+        .lines()
+        .map(|l| l.unwrap())
+        .filter_map(|value| {
+            let Some(key) = extract_sorting_key(&value, &sort_by) else {
+                return None
+            };
+            Some(Sortable {
+                value,
+                key: key,
+            })
+        })
+        .collect();
 
     eprintln!("Acquired lines");
 
     lines.sort_by(|a, b| {
-        let a = extract_sorting_key(a, &sort_by);
-        let b = extract_sorting_key(b, &sort_by);
-
         // Switched around, because we want descending sorts
-        std::cmp::Ord::cmp(&b, &a)
+        std::cmp::Ord::cmp(&b.key, &a.key)
     });
 
     eprintln!("Sorted");
 
     let mut output = stdout().lock();
     for i in lines {
-        writeln!(&mut output, "{}", i).unwrap();
+        writeln!(&mut output, "{}", i.value).unwrap();
     }
 }
 
-fn extract_sorting_key(value: &str, extract_regex: &Regex) -> i64 {
-    let extracted = extract_regex.captures(value).unwrap().get(1).unwrap().as_str();
+fn extract_sorting_key(value: &str, extract_regex: &Regex) -> Option<i64> {
+    let extracted = extract_regex.captures(value)?.get(1)?.as_str();
 
-    extracted.parse().unwrap()
+    extracted.parse().ok()
 }
