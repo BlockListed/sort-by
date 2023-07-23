@@ -53,13 +53,19 @@ fn sort(mut extraction: impl FnMut(&str) -> Option<i64>, reverse: bool) {
             Err(e) => {
                 match e.kind() {
                     // This happens when using `head` for example.
-                    ErrorKind::BrokenPipe => return,
+                    ErrorKind::BrokenPipe => break,
                     e => panic!("{}", e),
                 }
             }
         };
     }
-    output.flush().unwrap();
+    match output.flush() {
+        Ok(_) => (),
+        Err(e) => match e.kind() {
+            ErrorKind::BrokenPipe => return,
+            e => panic!("{}", e),
+        }
+    }
 }
 
 fn regex_extraction(sort_by_regex: &str) -> impl FnMut(&str) -> Option<i64> {
