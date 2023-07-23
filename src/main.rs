@@ -1,4 +1,4 @@
-use std::{io::{stdin, BufRead, stdout, Write}, env::args};
+use std::{io::{stdin, BufRead, stdout, Write, BufWriter}, env::args};
 
 use regex::Regex;
 
@@ -37,10 +37,11 @@ fn main() {
 
     eprintln!("Sorted");
 
-    let mut output = stdout().lock();
+    let mut output = BufWriter::new(stdout().lock());
     for i in lines {
         writeln!(&mut output, "{}", i.value).unwrap();
     }
+    output.flush().unwrap();
 }
 
 fn extract_sorting_key(value: &str, extract_regex: &Regex) -> Option<i64> {
