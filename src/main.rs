@@ -23,7 +23,7 @@ fn main() {
             };
             Some(Sortable {
                 value,
-                key: key,
+                key,
             })
         })
         .collect();
