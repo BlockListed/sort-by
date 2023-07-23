@@ -1,0 +1,7 @@
+/target
+# Test payloads for profiling
+payload.txt
+# Profiling data
+perf.data
+perf.data.old
+flamegraph.svg
