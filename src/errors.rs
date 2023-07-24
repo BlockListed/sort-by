@@ -14,7 +14,7 @@ pub enum MainError {
 	Output(#[from] io::Error),
 }
 
-// This exists because of limitations on implementing traits on foreign types.
+// This exists because the default error for Missing free argument, doesn't (and can't) include which free standing argument is missing.
 pub trait ArgumentIntoMain<T> {
 	fn into_main(self, argument: &'static str) -> Result<T, MainError>;
 }
