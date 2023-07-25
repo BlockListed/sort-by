@@ -15,5 +15,4 @@ OPTIONS:
 		Sort in descending order instead of ascending
 	-s, --subgroup
 		Select which subgroup is used as a sorting key.
-		0 means the whole match is used as a (integer) sorting key.
-";
+		0 means the whole match is used as a (integer) sorting key.";
