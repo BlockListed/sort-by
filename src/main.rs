@@ -1,4 +1,4 @@
-use std::io::{stdin, BufRead, stdout, Write, BufWriter, stderr};
+use std::{io::{stdin, BufRead, stdout, Write, BufWriter, stderr, self}, process::ExitCode};
 
 use pico_args::Arguments;
 use regex::Regex;
@@ -6,7 +6,7 @@ use regex::Regex;
 mod strings;
 mod errors;
 
-use errors::{ArgumentIntoMain, IntoMainResult, MyResult};
+use errors::{MainError, argerr_transform, print_error};
 
 struct Sortable {
     value: String,
@@ -18,11 +18,28 @@ fn or(a: bool, b: bool) -> bool {
     a || b
 }
 
-fn main() -> MyResult<(), errors::MainError> {
-    let mut args = Arguments::from_env();
+fn main() -> ExitCode {
+    let args = Arguments::from_env();
 
+    match app(args) {
+        Ok(_) => ExitCode::SUCCESS,
+        Err(e) => match e {
+            MainError::Output(ref io_err) => match io_err.kind() {
+                io::ErrorKind::BrokenPipe => ExitCode::SUCCESS,
+                _ => {
+                    print_error(e)
+                }
+            }
+            _ => {
+                print_error(e)
+            }
+        }
+    }
+}
+
+fn app(mut args: Arguments) -> Result<(), MainError> {
     if or(args.contains("--help"), args.contains("-h")) {
-        my_try!(stderr().write_all(strings::HELP.as_bytes()));
+        stderr().write_all(strings::HELP.as_bytes())?;
         return Ok(()).into()
     }
 
@@ -32,7 +49,7 @@ fn main() -> MyResult<(), errors::MainError> {
         .or(args.opt_value_from_str("-s").unwrap())
         .unwrap_or(1);
 
-    let sort_by_regex: String = my_try!(args.free_from_str().into_main("PATTERN"));
+    let sort_by_regex: String = args.free_from_str().map_err(argerr_transform("PATTERN"))?;
 
     let input = stdin().lock();
 
@@ -45,7 +62,7 @@ fn main() -> MyResult<(), errors::MainError> {
 
     let mut out = BufWriter::new(stdout().lock());
 
-    my_try!(output(extracted.iter().map(|v| v.value.as_str()), &mut out).into_main());
+    output(extracted.iter().map(|v| v.value.as_str()), &mut out)?;
 
     Ok(()).into()
 }
@@ -77,15 +94,15 @@ fn sort<'a>(input: &mut [Sortable], reverse: bool) {
     });
 }
 
-fn output<'a, W: Write>(lines: impl Iterator<Item = &'a str>, output: &mut BufWriter<W>) -> Result<(), errors::OutputError> {
+fn output<'a, W: Write>(lines: impl Iterator<Item = &'a str>, output: &mut BufWriter<W>) -> Result<(), io::Error> {
     for i in lines {
-        let r: Result<(), errors::OutputError> = writeln!(output, "{}", i).map_err(|e| e.into());
+        let r = writeln!(output, "{}", i);
 
         // Make sure we always flush the output. (Not sure if it's necessary.)
         if let Err(e) = r {
-            match e {
-                errors::OutputError::Closed => break,
-                errors::OutputError::Other(_) => Err(e)?,
+            match e.kind() {
+                io::ErrorKind::BrokenPipe => break,
+                _ => Err(e)?,
             }
         }
     }
