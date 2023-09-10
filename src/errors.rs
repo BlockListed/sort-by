@@ -22,7 +22,7 @@ pub fn argerr_transform(name: &'static str) -> impl Fn(pico_args::Error) -> Main
 	}
 }
 
-pub fn print_error(e: MainError) -> ExitCode {
+pub fn print_error(e: &MainError) -> ExitCode {
 	println!("{e}");
 	if matches!(
 		e,

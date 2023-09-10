@@ -15,6 +15,7 @@ struct Sortable {
 	value: String,
 	key: i64,
 }
+
 fn main() -> ExitCode {
 	let args = Arguments::from_env();
 
@@ -23,9 +24,9 @@ fn main() -> ExitCode {
 		Err(e) => match e {
 			MainError::Output(ref io_err) => match io_err.kind() {
 				io::ErrorKind::BrokenPipe => ExitCode::SUCCESS,
-				_ => print_error(e),
+				_ => print_error(&e),
 			},
-			_ => print_error(e),
+			_ => print_error(&e),
 		},
 	}
 }
@@ -33,7 +34,7 @@ fn main() -> ExitCode {
 fn app(mut args: Arguments) -> Result<(), MainError> {
 	if args.contains("--help") || args.contains("-h") {
 		stderr().write_all(strings::HELP.as_bytes())?;
-		return Ok(()).into();
+		return Ok(());
 	}
 
 	let reverse = args.contains("--reverse") || args.contains("-r");
@@ -59,7 +60,7 @@ fn app(mut args: Arguments) -> Result<(), MainError> {
 
 	output(extracted.iter().map(|v| v.value.as_str()), &mut out)?;
 
-	Ok(()).into()
+	Ok(())
 }
 
 #[must_use]
@@ -77,7 +78,7 @@ fn extract(
 		.collect()
 }
 
-fn sort<'a>(input: &mut [Sortable], reverse: bool) {
+fn sort(input: &mut [Sortable], reverse: bool) {
 	input.sort_by(|a, b| {
 		let ordering = a.key.cmp(&b.key);
 
@@ -94,7 +95,7 @@ fn output<'a, W: Write>(
 	output: &mut BufWriter<W>,
 ) -> Result<(), io::Error> {
 	for i in lines {
-		let r = writeln!(output, "{}", i);
+		let r = writeln!(output, "{i}");
 
 		// Make sure we always flush the output. (Not sure if it's necessary.)
 		if let Err(e) = r {
