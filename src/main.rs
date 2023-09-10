@@ -12,12 +12,6 @@ struct Sortable {
     value: String,
     key: i64,
 }
-
-// "Or", which doesn't short-circuit.
-fn or(a: bool, b: bool) -> bool {
-    a || b
-}
-
 fn main() -> ExitCode {
     let args = Arguments::from_env();
 
@@ -38,12 +32,12 @@ fn main() -> ExitCode {
 }
 
 fn app(mut args: Arguments) -> Result<(), MainError> {
-    if or(args.contains("--help"), args.contains("-h")) {
+    if args.contains("--help") || args.contains("-h") {
         stderr().write_all(strings::HELP.as_bytes())?;
         return Ok(()).into()
     }
 
-    let reverse = or(args.contains("--reverse"), args.contains("-r"));
+    let reverse = args.contains("--reverse") || args.contains("-r");
     
     let subgroup: usize = args.opt_value_from_str("--subgroup").unwrap()
         .or(args.opt_value_from_str("-s").unwrap())
