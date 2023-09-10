@@ -1,11 +1,10 @@
 pub const HELP: &str = "Sort input using a specific sorting key.
 
-Usage: sortb [OPTIONS] PATTERN [FILE]
+Usage: sortb [OPTIONS] PATTERN
 
 Arguments:
 	PATTERN: A regexp. The first subgroup is used by default.
 		(Can be changed with -s / --subgroup)
-	FILE: The file to sort, default is STDIN.
 
 OPTIONS:
 	-h, --help
