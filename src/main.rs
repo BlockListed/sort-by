@@ -47,12 +47,14 @@ fn app(mut args: Arguments) -> Result<(), MainError> {
 
 	let sort_by_regex: String = args.free_from_str().map_err(argerr_transform("PATTERN"))?;
 
-	let input = stdin().lock();
+    let mut extracted = {
+	    let input = stdin().lock();
 
-	let mut extracted = extract(
-		input.lines().map(Result::unwrap),
-		regex_extraction(&sort_by_regex, subgroup),
-	);
+    	extract(
+    		input.lines().map(Result::unwrap),
+    		regex_extraction(&sort_by_regex, subgroup),
+	    )
+    };
 
 	sort(&mut extracted, reverse);
 
