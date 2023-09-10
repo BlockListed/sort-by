@@ -12,7 +12,7 @@ pub enum MainError {
 	Output(#[from] io::Error),
 }
 
-pub fn argerr_transform(name: &'static str) -> impl FnMut(pico_args::Error) -> MainError {
+pub fn argerr_transform(name: &'static str) -> impl Fn(pico_args::Error) -> MainError {
 	move |e| {
 		use pico_args::Error::{MissingArgument, MissingOption};
 		match e {
