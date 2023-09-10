@@ -1,5 +1,4 @@
-pub const HELP: &str =
-"Sort input using a specific sorting key.
+pub const HELP: &str = "Sort input using a specific sorting key.
 
 Usage: sortb [OPTIONS] PATTERN [FILE]
 

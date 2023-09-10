@@ -24,7 +24,10 @@ pub fn argerr_transform(name: &'static str) -> impl Fn(pico_args::Error) -> Main
 
 pub fn print_error(e: MainError) -> ExitCode {
 	println!("{e}");
-	if matches!(e, MainError::InvalidArgument(_) | MainError::MissingArgument(_)) {
+	if matches!(
+		e,
+		MainError::InvalidArgument(_) | MainError::MissingArgument(_)
+	) {
 		println!("{}", crate::strings::HELP);
 	}
 	ExitCode::FAILURE
